@@ -23,6 +23,10 @@ export function Calendar({ selectedSlots, onSlotsChange }: CalendarProps) {
     queryKey: ["/api/availability"],
   });
 
+  const { data: bookings = [] } = useQuery({
+    queryKey: ["/api/bookings"],
+  });
+
   // Generate time slots based on availability
   const generateTimeSlots = () => {
     const slots: { [key: string]: { dayName: string; times: string[] } } = {};
@@ -87,6 +91,11 @@ export function Calendar({ selectedSlots, onSlotsChange }: CalendarProps) {
   const timeSlots = generateTimeSlots();
 
   const toggleSlot = (day: string, time: string, dayName: string) => {
+    // Don't allow selection of booked slots
+    if (isSlotBooked(day, time)) {
+      return;
+    }
+    
     const slot: TimeSlot = { day, time, dayName };
     const isSelected = selectedSlots.some(s => s.day === day && s.time === time);
     
@@ -99,6 +108,12 @@ export function Calendar({ selectedSlots, onSlotsChange }: CalendarProps) {
 
   const isSlotSelected = (day: string, time: string) => {
     return selectedSlots.some(s => s.day === day && s.time === time);
+  };
+
+  const isSlotBooked = (day: string, time: string) => {
+    return (bookings as any[]).some((booking: any) => 
+      booking.timeSlots.some((slot: any) => slot.day === day && slot.time === time)
+    );
   };
 
   return (
@@ -155,21 +170,29 @@ export function Calendar({ selectedSlots, onSlotsChange }: CalendarProps) {
                 {dayName}
               </h5>
               <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
-                {times.map((time) => (
-                  <Button
-                    key={time}
-                    variant={isSlotSelected(day, time) ? "default" : "outline"}
-                    size="sm"
-                    className={`p-3 text-sm transition-all duration-200 ${
-                      isSlotSelected(day, time)
-                        ? "bg-navy-500 text-white border-navy-500 hover:bg-navy-600"
-                        : "glassmorphism-card hover:border-navy-400 hover:bg-navy-50/50 dark:hover:bg-navy-900/20"
-                    }`}
-                    onClick={() => toggleSlot(day, time, dayName)}
-                  >
-                    {time}
-                  </Button>
-                ))}
+                {times.map((time) => {
+                  const isBooked = isSlotBooked(day, time);
+                  const isSelected = isSlotSelected(day, time);
+                  
+                  return (
+                    <Button
+                      key={time}
+                      variant={isSelected ? "default" : "outline"}
+                      size="sm"
+                      disabled={isBooked}
+                      className={`p-3 text-sm transition-all duration-200 ${
+                        isBooked
+                          ? "bg-red-100 text-red-800 border-red-300 cursor-not-allowed dark:bg-red-900/20 dark:text-red-400 dark:border-red-800"
+                          : isSelected
+                          ? "bg-navy-500 text-white border-navy-500 hover:bg-navy-600"
+                          : "glassmorphism-card hover:border-navy-400 hover:bg-navy-50/50 dark:hover:bg-navy-900/20"
+                      }`}
+                      onClick={() => toggleSlot(day, time, dayName)}
+                    >
+                      {isBooked ? `${time} (${t("booking.calendar.legend.booked")})` : time}
+                    </Button>
+                  );
+                })}
               </div>
             </div>
           ))}
