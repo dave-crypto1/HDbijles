@@ -50,24 +50,36 @@ export function Navigation() {
             >
               {t("navigation.home")}
             </Link>
-            <a
-              href="#services"
-              className="text-gray-700 dark:text-gray-300 hover:text-navy-600 dark:hover:text-navy-400 transition-colors"
+            <Link
+              href="/services"
+              className={`transition-colors ${
+                location === "/services" 
+                  ? "text-navy-600 dark:text-navy-400" 
+                  : "text-gray-700 dark:text-gray-300 hover:text-navy-600 dark:hover:text-navy-400"
+              }`}
             >
               {t("navigation.services")}
-            </a>
-            <a
-              href="#booking"
-              className="text-gray-700 dark:text-gray-300 hover:text-navy-600 dark:hover:text-navy-400 transition-colors"
+            </Link>
+            <Link
+              href="/booking"
+              className={`transition-colors ${
+                location === "/booking" 
+                  ? "text-navy-600 dark:text-navy-400" 
+                  : "text-gray-700 dark:text-gray-300 hover:text-navy-600 dark:hover:text-navy-400"
+              }`}
             >
               {t("navigation.booking")}
-            </a>
-            <a
-              href="#contact"
-              className="text-gray-700 dark:text-gray-300 hover:text-navy-600 dark:hover:text-navy-400 transition-colors"
+            </Link>
+            <Link
+              href="/contact"
+              className={`transition-colors ${
+                location === "/contact" 
+                  ? "text-navy-600 dark:text-navy-400" 
+                  : "text-gray-700 dark:text-gray-300 hover:text-navy-600 dark:hover:text-navy-400"
+              }`}
             >
               {t("navigation.contact")}
-            </a>
+            </Link>
           </div>
 
           {/* Controls */}
@@ -140,27 +152,27 @@ export function Navigation() {
               >
                 {t("navigation.home")}
               </Link>
-              <a
-                href="#services"
+              <Link
+                href="/services"
                 className="block px-3 py-2 text-gray-700 dark:text-gray-300 hover:text-navy-600 dark:hover:text-navy-400 transition-colors"
                 onClick={() => setMobileMenuOpen(false)}
               >
                 {t("navigation.services")}
-              </a>
-              <a
-                href="#booking"
+              </Link>
+              <Link
+                href="/booking"
                 className="block px-3 py-2 text-gray-700 dark:text-gray-300 hover:text-navy-600 dark:hover:text-navy-400 transition-colors"
                 onClick={() => setMobileMenuOpen(false)}
               >
                 {t("navigation.booking")}
-              </a>
-              <a
-                href="#contact"
+              </Link>
+              <Link
+                href="/contact"
                 className="block px-3 py-2 text-gray-700 dark:text-gray-300 hover:text-navy-600 dark:hover:text-navy-400 transition-colors"
                 onClick={() => setMobileMenuOpen(false)}
               >
                 {t("navigation.contact")}
-              </a>
+              </Link>
               <Link
                 href="/admin"
                 className="block px-3 py-2 text-gray-700 dark:text-gray-300 hover:text-navy-600 dark:hover:text-navy-400 transition-colors"

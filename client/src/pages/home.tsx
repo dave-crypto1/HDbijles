@@ -1,7 +1,6 @@
-import { BookingForm } from "@/components/booking-form";
 import { useLanguage } from "@/hooks/use-language";
 import { Button } from "@/components/ui/button";
-import { Atom, Calculator, Book, Clock, Mail, GraduationCap, Check } from "lucide-react";
+import { Atom, Calculator, Clock, Mail } from "lucide-react";
 
 export default function Home() {
   const { t } = useLanguage();
@@ -24,26 +23,6 @@ export default function Home() {
     },
   ];
 
-  const services = [
-    {
-      icon: Atom,
-      title: t("services.physics.title"),
-      description: t("services.physics.description"),
-      topics: ["Mechanica & Dynamica", "Elektriciteit & Magnetisme", "Optica & Golven"],
-    },
-    {
-      icon: Calculator,
-      title: t("services.math.title"),
-      description: t("services.math.description"),
-      topics: ["Algebra & Vergelijkingen", "Geometrie & Trigonometrie", "Statistiek & Kansberekening"],
-    },
-    {
-      icon: Book,
-      title: t("services.other.title"),
-      description: t("services.other.description"),
-      topics: ["Huiswerkbegeleiding", "Examenvoorbereiding", "Studiemethodiek"],
-    },
-  ];
 
   return (
     <div className="min-h-screen">
@@ -67,7 +46,7 @@ export default function Home() {
                 asChild
                 className="group relative px-8 py-4 navy-gradient text-white font-semibold rounded-xl shadow-lg hover:shadow-2xl transform hover:-translate-y-1 transition-all duration-300 overflow-hidden"
               >
-                <a href="#booking">
+                <a href="/booking">
                   <span className="relative z-10 flex items-center space-x-2">
                     <Atom className="h-5 w-5" />
                     <span>{t("hero.bookNow")}</span>
@@ -96,102 +75,62 @@ export default function Home() {
         </div>
       </section>
 
-      {/* Services Section */}
-      <section id="services" className="py-16 px-4 sm:px-6 lg:px-8 bg-gray-50 dark:bg-gray-800/50">
-        <div className="max-w-7xl mx-auto">
-          <div className="text-center mb-16">
-            <h2 className="text-4xl md:text-5xl font-bold text-navy-900 dark:text-white mb-6">
-              {t("services.title")}
-            </h2>
-            <p className="text-xl text-gray-600 dark:text-gray-300 max-w-3xl mx-auto">
-              {t("services.subtitle")}
-            </p>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {services.map((service, index) => (
-              <div
-                key={index}
-                className="group relative bg-white dark:bg-gray-800 rounded-2xl p-8 shadow-lg hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-2 border border-gray-200/20 dark:border-gray-700/20"
-              >
-                <div className="absolute inset-0 bg-gradient-to-br from-navy-600/5 to-navy-800/5 rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-                <div className="relative z-10">
-                  <div className="w-16 h-16 navy-gradient rounded-xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform duration-300">
-                    <service.icon className="h-8 w-8 text-white" />
-                  </div>
-                  <h3 className="text-2xl font-bold mb-4 text-navy-900 dark:text-white">
-                    {service.title}
-                  </h3>
-                  <p className="text-gray-600 dark:text-gray-300 mb-6">
-                    {service.description}
-                  </p>
-                  <ul className="space-y-2 text-gray-600 dark:text-gray-300 mb-6">
-                    {service.topics.map((topic, topicIndex) => (
-                      <li key={topicIndex} className="flex items-center space-x-2">
-                        <Check className="h-4 w-4 text-green-500" />
-                        <span>{topic}</span>
-                      </li>
-                    ))}
-                  </ul>
-                  <div className="text-2xl font-bold text-navy-600">
-                    €15 <span className="text-lg font-normal text-gray-500">/uur</span>
-                  </div>
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* Booking Section */}
-      <section id="booking" className="py-16 px-4 sm:px-6 lg:px-8">
-        <div className="max-w-7xl mx-auto">
-          <div className="text-center mb-16">
-            <h2 className="text-4xl md:text-5xl font-bold text-navy-900 dark:text-white mb-6">
-              {t("booking.title")}
-            </h2>
-            <p className="text-xl text-gray-600 dark:text-gray-300 max-w-3xl mx-auto">
-              {t("booking.subtitle")}
-            </p>
-          </div>
-
-          <BookingForm />
-        </div>
-      </section>
-
-      {/* Contact Section */}
-      <section id="contact" className="py-16 px-4 sm:px-6 lg:px-8 bg-gray-50 dark:bg-gray-800/50">
-        <div className="max-w-4xl mx-auto text-center">
+      {/* Services Preview Section */}
+      <section className="py-16 px-4 sm:px-6 lg:px-8 bg-gray-50 dark:bg-gray-800/50">
+        <div className="max-w-7xl mx-auto text-center">
           <h2 className="text-4xl md:text-5xl font-bold text-navy-900 dark:text-white mb-6">
-            {t("contact.title")}
+            Waarom HD Bijles?
           </h2>
-          <p className="text-xl text-gray-600 dark:text-gray-300 mb-8">
-            {t("contact.subtitle")}
+          <p className="text-xl text-gray-600 dark:text-gray-300 max-w-3xl mx-auto mb-12">
+            Persoonlijke aandacht en bewezen resultaten
           </p>
           
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-2xl mx-auto">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-12">
             <div className="text-center p-6 glassmorphism-card rounded-2xl">
               <div className="w-16 h-16 bg-navy-100 dark:bg-navy-900/30 rounded-xl flex items-center justify-center mx-auto mb-4">
-                <Mail className="h-8 w-8 text-navy-600" />
+                <Atom className="h-8 w-8 text-navy-600" />
               </div>
-              <h3 className="text-lg font-semibold mb-2">{t("contact.email")}</h3>
-              <a 
-                href="mailto:hdbijles@gmail.com" 
-                className="text-navy-600 dark:text-navy-400 hover:underline"
-              >
-                hdbijles@gmail.com
-              </a>
+              <h3 className="text-xl font-semibold mb-2">Fysica & Wiskunde</h3>
+              <p className="text-gray-600 dark:text-gray-400">Gespecialiseerd in de vakken waar je echt hulp bij nodig hebt</p>
             </div>
             
             <div className="text-center p-6 glassmorphism-card rounded-2xl">
               <div className="w-16 h-16 bg-navy-100 dark:bg-navy-900/30 rounded-xl flex items-center justify-center mx-auto mb-4">
-                <GraduationCap className="h-8 w-8 text-navy-600" />
+                <Calculator className="h-8 w-8 text-navy-600" />
               </div>
-              <h3 className="text-lg font-semibold mb-2">{t("contact.aboutMe")}</h3>
-              <p className="text-gray-600 dark:text-gray-300">
-                {t("contact.aboutDescription")}
-              </p>
+              <h3 className="text-xl font-semibold mb-2">5de Middelbaar</h3>
+              <p className="text-gray-600 dark:text-gray-400">Ik begrijp de uitdagingen omdat ik ze zelf meemaak</p>
             </div>
+            
+            <div className="text-center p-6 glassmorphism-card rounded-2xl">
+              <div className="w-16 h-16 bg-navy-100 dark:bg-navy-900/30 rounded-xl flex items-center justify-center mx-auto mb-4">
+                <Clock className="h-8 w-8 text-navy-600" />
+              </div>
+              <h3 className="text-xl font-semibold mb-2">Flexibele Planning</h3>
+              <p className="text-gray-600 dark:text-gray-400">Beschikbaar wanneer het jou uitkomt</p>
+            </div>
+          </div>
+
+          <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
+            <Button
+              asChild
+              className="group relative px-8 py-4 navy-gradient text-white font-semibold rounded-xl shadow-lg hover:shadow-2xl transform hover:-translate-y-1 transition-all duration-300 overflow-hidden"
+            >
+              <a href="/services">
+                <span className="relative z-10 flex items-center space-x-2">
+                  <span>Bekijk Alle Diensten</span>
+                </span>
+              </a>
+            </Button>
+            <Button
+              asChild
+              variant="outline"
+              className="px-8 py-4 border-2 border-navy-600 text-navy-600 dark:text-navy-400 hover:bg-navy-50 dark:hover:bg-navy-900/20 font-semibold rounded-xl transition-all duration-300"
+            >
+              <a href="/contact">
+                <span>Neem Contact Op</span>
+              </a>
+            </Button>
           </div>
         </div>
       </section>
