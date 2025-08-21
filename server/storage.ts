@@ -19,7 +19,9 @@ export interface IStorage {
 
   // Availability methods
   getAvailability(): Promise<Availability[]>;
-  updateAvailability(availability: InsertAvailability[]): Promise<Availability[]>;
+  addAvailability(availability: InsertAvailability): Promise<Availability>;
+  removeAvailability(id: string): Promise<boolean>;
+  clearAllAvailability(): Promise<void>;
 }
 
 export class MemStorage implements IStorage {
@@ -43,18 +45,7 @@ export class MemStorage implements IStorage {
       subjects: ["physics", "math", "other"],
     };
 
-    // Initialize default availability (Wednesday, Friday, Saturday, Sunday)
-    const defaultAvailability = [
-      { dayOfWeek: 3, startTime: "14:00", endTime: "17:00", enabled: true }, // Wednesday
-      { dayOfWeek: 5, startTime: "15:00", endTime: "18:00", enabled: true }, // Friday
-      { dayOfWeek: 6, startTime: "10:00", endTime: "16:00", enabled: true }, // Saturday
-      { dayOfWeek: 0, startTime: "13:00", endTime: "16:00", enabled: true }, // Sunday
-    ];
-
-    defaultAvailability.forEach(avail => {
-      const id = randomUUID();
-      this.availability.set(id, { ...avail, id });
-    });
+    // Start with no default availability - admin needs to add dates manually
 
     // Create default admin user
     this.createUser({ username: "haidar.amestoun", password: "Haidar2009" });
@@ -119,21 +110,22 @@ export class MemStorage implements IStorage {
   }
 
   async getAvailability(): Promise<Availability[]> {
-    return Array.from(this.availability.values()).sort((a, b) => a.dayOfWeek - b.dayOfWeek);
+    return Array.from(this.availability.values()).sort((a, b) => a.date.localeCompare(b.date));
   }
 
-  async updateAvailability(availabilityList: InsertAvailability[]): Promise<Availability[]> {
+  async addAvailability(insertAvailability: InsertAvailability): Promise<Availability> {
+    const id = randomUUID();
+    const availability: Availability = { ...insertAvailability, id, enabled: insertAvailability.enabled ?? true };
+    this.availability.set(id, availability);
+    return availability;
+  }
+
+  async removeAvailability(id: string): Promise<boolean> {
+    return this.availability.delete(id);
+  }
+
+  async clearAllAvailability(): Promise<void> {
     this.availability.clear();
-    
-    const result: Availability[] = [];
-    availabilityList.forEach(avail => {
-      const id = randomUUID();
-      const availability: Availability = { ...avail, id, enabled: avail.enabled ?? true };
-      this.availability.set(id, availability);
-      result.push(availability);
-    });
-    
-    return result.sort((a, b) => a.dayOfWeek - b.dayOfWeek);
   }
 }
 

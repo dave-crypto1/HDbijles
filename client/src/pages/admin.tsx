@@ -28,10 +28,10 @@ const formSettingsSchema = z.object({
 });
 
 const availabilitySchema = z.object({
-  dayOfWeek: z.number().min(0).max(6),
+  date: z.string().min(1, "Date is required"),
   startTime: z.string().regex(/^\d{2}:\d{2}$/, "Time must be in HH:MM format"),
   endTime: z.string().regex(/^\d{2}:\d{2}$/, "Time must be in HH:MM format"),
-  enabled: z.boolean(),
+  enabled: z.boolean().optional().default(true),
 });
 
 type LoginForm = z.infer<typeof loginSchema>;
@@ -44,6 +44,12 @@ export default function Admin() {
   const queryClient = useQueryClient();
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [newSubject, setNewSubject] = useState("");
+  const [newAvailability, setNewAvailability] = useState({
+    date: "",
+    startTime: "",
+    endTime: "",
+    enabled: true
+  });
 
   const { data: user, isLoading: userLoading } = useQuery({
     queryKey: ["/api/auth/me"],
@@ -136,23 +142,43 @@ export default function Admin() {
     },
   });
 
-  const updateAvailabilityMutation = useMutation({
-    mutationFn: async (data: AvailabilityForm[]) => {
-      return apiRequest("PUT", "/api/availability", data);
+  const addAvailabilityMutation = useMutation({
+    mutationFn: async (data: AvailabilityForm) => {
+      return apiRequest("POST", "/api/availability", data);
     },
     onSuccess: () => {
-      toast({
-        title: "Availability updated",
-        description: "Your availability has been saved successfully",
-      });
       queryClient.invalidateQueries({ queryKey: ["/api/availability"] });
+      setNewAvailability({ date: "", startTime: "", endTime: "", enabled: true });
+      toast({ title: "Availability added successfully!" });
     },
-    onError: (error: any) => {
-      toast({
-        title: "Update failed",
-        description: error.message || "Failed to update availability",
-        variant: "destructive",
-      });
+    onError: () => {
+      toast({ title: "Failed to add availability", variant: "destructive" });
+    },
+  });
+
+  const removeAvailabilityMutation = useMutation({
+    mutationFn: async (id: string) => {
+      return apiRequest("DELETE", `/api/availability/${id}`, null);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/availability"] });
+      toast({ title: "Availability removed successfully!" });
+    },
+    onError: () => {
+      toast({ title: "Failed to remove availability", variant: "destructive" });
+    },
+  });
+
+  const clearAvailabilityMutation = useMutation({
+    mutationFn: async () => {
+      return apiRequest("DELETE", "/api/availability", null);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/availability"] });
+      toast({ title: "All availability cleared successfully!" });
+    },
+    onError: () => {
+      toast({ title: "Failed to clear availability", variant: "destructive" });
     },
   });
 
@@ -184,13 +210,20 @@ export default function Admin() {
     updateSettingsMutation.mutate(data);
   };
 
-  const handleAvailabilitySubmit = () => {
-    updateAvailabilityMutation.mutate(availability);
+  const handleAddAvailability = () => {
+    if (newAvailability.date && newAvailability.startTime && newAvailability.endTime) {
+      addAvailabilityMutation.mutate(newAvailability);
+    }
   };
 
-  const dayNames = [
-    "Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"
-  ];
+  const handleRemoveAvailability = (id: string) => {
+    removeAvailabilityMutation.mutate(id);
+  };
+
+  const handleClearAllAvailability = () => {
+    clearAvailabilityMutation.mutate();
+  };
+
 
   if (userLoading) {
     return (
@@ -443,58 +476,112 @@ export default function Admin() {
             <Card>
               <CardHeader>
                 <CardTitle>{t("admin.availability.title")}</CardTitle>
+                <p className="text-sm text-gray-600 dark:text-gray-400">
+                  Voeg specifieke datums toe wanneer je beschikbaar bent. Standaard zijn alle datums niet beschikbaar.
+                </p>
               </CardHeader>
               <CardContent>
-                <div className="space-y-4">
-                  {availability.map((avail: any) => (
-                    <div key={avail.id} className="flex items-center justify-between p-4 border rounded-lg">
-                      <span className="font-medium">{dayNames[avail.dayOfWeek]}</span>
-                      <div className="flex items-center space-x-4">
+                <div className="space-y-6">
+                  {/* Add new availability form */}
+                  <div className="p-4 border-2 border-dashed border-gray-200 dark:border-gray-700 rounded-lg">
+                    <h3 className="font-medium mb-4">Nieuwe beschikbaarheid toevoegen</h3>
+                    <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+                      <div>
+                        <Label htmlFor="date">Datum</Label>
                         <Input
-                          type="time"
-                          value={avail.startTime}
-                          onChange={(e) => {
-                            // Update availability in place
-                            const updated = (availability as any[]).map((a: any) =>
-                              a.id === avail.id ? { ...a, startTime: e.target.value } : a
-                            );
-                            queryClient.setQueryData(["/api/availability"], updated);
-                          }}
-                          className="w-24"
-                        />
-                        <span>-</span>
-                        <Input
-                          type="time"
-                          value={avail.endTime}
-                          onChange={(e) => {
-                            const updated = (availability as any[]).map((a: any) =>
-                              a.id === avail.id ? { ...a, endTime: e.target.value } : a
-                            );
-                            queryClient.setQueryData(["/api/availability"], updated);
-                          }}
-                          className="w-24"
-                        />
-                        <Switch
-                          checked={avail.enabled}
-                          onCheckedChange={(checked) => {
-                            const updated = (availability as any[]).map((a: any) =>
-                              a.id === avail.id ? { ...a, enabled: checked } : a
-                            );
-                            queryClient.setQueryData(["/api/availability"], updated);
-                          }}
+                          id="date"
+                          type="date"
+                          value={newAvailability.date}
+                          onChange={(e) => setNewAvailability(prev => ({ ...prev, date: e.target.value }))}
+                          min={new Date().toISOString().split('T')[0]}
                         />
                       </div>
+                      <div>
+                        <Label htmlFor="startTime">Starttijd</Label>
+                        <Input
+                          id="startTime"
+                          type="time"
+                          value={newAvailability.startTime}
+                          onChange={(e) => setNewAvailability(prev => ({ ...prev, startTime: e.target.value }))}
+                        />
+                      </div>
+                      <div>
+                        <Label htmlFor="endTime">Eindtijd</Label>
+                        <Input
+                          id="endTime"
+                          type="time"
+                          value={newAvailability.endTime}
+                          onChange={(e) => setNewAvailability(prev => ({ ...prev, endTime: e.target.value }))}
+                        />
+                      </div>
+                      <div className="flex items-end">
+                        <Button
+                          onClick={handleAddAvailability}
+                          disabled={addAvailabilityMutation.isPending || !newAvailability.date || !newAvailability.startTime || !newAvailability.endTime}
+                          className="w-full navy-gradient text-white"
+                        >
+                          <Plus className="h-4 w-4 mr-2" />
+                          {addAvailabilityMutation.isPending ? "Adding..." : "Toevoegen"}
+                        </Button>
+                      </div>
                     </div>
-                  ))}
-                  
-                  <Button
-                    onClick={handleAvailabilitySubmit}
-                    disabled={updateAvailabilityMutation.isPending}
-                    className="w-full navy-gradient text-white"
-                  >
-                    <Save className="h-4 w-4 mr-2" />
-                    {updateAvailabilityMutation.isPending ? "Saving..." : t("admin.availability.save")}
-                  </Button>
+                  </div>
+
+                  {/* Current availability list */}
+                  <div>
+                    <h3 className="font-medium mb-4">Huidige beschikbaarheid</h3>
+                    {availability.length === 0 ? (
+                      <p className="text-gray-500 dark:text-gray-400 text-center py-8">
+                        Geen beschikbaarheid ingesteld. Voeg hierboven datums toe.
+                      </p>
+                    ) : (
+                      <div className="space-y-2">
+                        {availability
+                          .sort((a: any, b: any) => a.date.localeCompare(b.date))
+                          .map((avail: any) => (
+                          <div key={avail.id} className="flex items-center justify-between p-4 border rounded-lg bg-gray-50 dark:bg-gray-800/50">
+                            <div className="flex-1">
+                              <span className="font-medium">
+                                {new Date(avail.date + 'T00:00:00').toLocaleDateString('nl-NL', { 
+                                  weekday: 'long', 
+                                  year: 'numeric', 
+                                  month: 'long', 
+                                  day: 'numeric' 
+                                })}
+                              </span>
+                              <div className="text-sm text-gray-600 dark:text-gray-400">
+                                {avail.startTime} - {avail.endTime}
+                              </div>
+                            </div>
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              onClick={() => handleRemoveAvailability(avail.id)}
+                              disabled={removeAvailabilityMutation.isPending}
+                              className="text-red-600 hover:text-red-700 hover:bg-red-50 dark:hover:bg-red-900/20"
+                            >
+                              <Trash2 className="h-4 w-4" />
+                            </Button>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Clear all button */}
+                  {availability.length > 0 && (
+                    <div className="pt-4 border-t">
+                      <Button
+                        variant="outline"
+                        onClick={handleClearAllAvailability}
+                        disabled={clearAvailabilityMutation.isPending}
+                        className="w-full text-red-600 hover:text-red-700 hover:bg-red-50 dark:hover:bg-red-900/20"
+                      >
+                        <Trash2 className="h-4 w-4 mr-2" />
+                        {clearAvailabilityMutation.isPending ? "Clearing..." : "Alle beschikbaarheid verwijderen"}
+                      </Button>
+                    </div>
+                  )}
                 </div>
               </CardContent>
             </Card>

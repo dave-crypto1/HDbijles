@@ -33,7 +33,7 @@ export const formSettings = pgTable("form_settings", {
 
 export const availability = pgTable("availability", {
   id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
-  dayOfWeek: integer("day_of_week").notNull(), // 0-6 (Sunday-Saturday)
+  date: text("date").notNull(), // YYYY-MM-DD format
   startTime: text("start_time").notNull(), // HH:MM format
   endTime: text("end_time").notNull(), // HH:MM format
   enabled: boolean("enabled").notNull().default(true),
@@ -63,7 +63,7 @@ export const insertFormSettingsSchema = createInsertSchema(formSettings).pick({
 });
 
 export const insertAvailabilitySchema = createInsertSchema(availability).pick({
-  dayOfWeek: true,
+  date: true,
   startTime: true,
   endTime: true,
   enabled: true,

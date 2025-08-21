@@ -27,28 +27,28 @@ export function Calendar({ selectedSlots, onSlotsChange }: CalendarProps) {
   const generateTimeSlots = () => {
     const slots: { [key: string]: { dayName: string; times: string[] } } = {};
     
-    // Get next 7 days starting from today
-    for (let i = 0; i < 7; i++) {
-      const date = new Date();
-      date.setDate(date.getDate() + i);
-      const dayOfWeek = date.getDay();
-      
-      // Check if this day is available
-      const dayAvailability = (availability as any[]).find((av: any) => av.dayOfWeek === dayOfWeek && av.enabled);
-      
-      if (dayAvailability) {
-        const dateStr = date.toISOString().split('T')[0];
-        const dayNames = [
-          t("days.sunday"), t("days.monday"), t("days.tuesday"), 
-          t("days.wednesday"), t("days.thursday"), t("days.friday"), t("days.saturday")
-        ];
+    // Use only dates that have been explicitly added by admin
+    (availability as any[]).forEach((av: any) => {
+      if (av.enabled && av.date) {
+        const date = new Date(av.date + 'T00:00:00'); // Ensure proper date parsing
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
         
-        slots[dateStr] = {
-          dayName: `${dayNames[dayOfWeek]} ${date.getDate()} ${date.toLocaleDateString('nl-NL', { month: 'short' })}`,
-          times: generateTimeSlotsForDay(dayAvailability.startTime, dayAvailability.endTime)
-        };
+        // Only show dates from today onwards
+        if (date >= today) {
+          const dayNames = [
+            t("days.sunday"), t("days.monday"), t("days.tuesday"), 
+            t("days.wednesday"), t("days.thursday"), t("days.friday"), t("days.saturday")
+          ];
+          
+          const dayOfWeek = date.getDay();
+          slots[av.date] = {
+            dayName: `${dayNames[dayOfWeek]} ${date.getDate()} ${date.toLocaleDateString('nl-NL', { month: 'short' })}`,
+            times: generateTimeSlotsForDay(av.startTime, av.endTime)
+          };
+        }
       }
-    }
+    });
     
     return slots;
   };

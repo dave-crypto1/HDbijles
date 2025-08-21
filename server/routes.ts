@@ -108,21 +108,47 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const availability = await storage.getAvailability();
       res.json(availability);
     } catch (error) {
-      res.status(500).json({ message: "Failed to fetch availability" });
+      console.error("Error getting availability:", error);
+      res.status(500).json({ message: "Failed to get availability" });
     }
   });
 
-  app.put("/api/availability", async (req, res) => {
+  // Add availability
+  app.post("/api/availability", async (req, res) => {
     try {
-      const validatedData = req.body.map((item: any) => insertAvailabilitySchema.parse(item));
-      const availability = await storage.updateAvailability(validatedData);
-      res.json(availability);
+      const validatedData = insertAvailabilitySchema.parse(req.body);
+      const availability = await storage.addAvailability(validatedData);
+      res.status(201).json(availability);
     } catch (error) {
-      if (error instanceof Error) {
-        res.status(400).json({ message: error.message });
+      console.error("Error adding availability:", error);
+      res.status(500).json({ message: "Failed to add availability" });
+    }
+  });
+
+  // Remove availability
+  app.delete("/api/availability/:id", async (req, res) => {
+    try {
+      const { id } = req.params;
+      const success = await storage.removeAvailability(id);
+      if (success) {
+        res.json({ success: true });
       } else {
-        res.status(500).json({ message: "Failed to update availability" });
+        res.status(404).json({ message: "Availability not found" });
       }
+    } catch (error) {
+      console.error("Error removing availability:", error);
+      res.status(500).json({ message: "Failed to remove availability" });
+    }
+  });
+
+  // Clear all availability
+  app.delete("/api/availability", async (req, res) => {
+    try {
+      await storage.clearAllAvailability();
+      res.json({ success: true });
+    } catch (error) {
+      console.error("Error clearing availability:", error);
+      res.status(500).json({ message: "Failed to clear availability" });
     }
   });
 
