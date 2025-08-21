@@ -34,8 +34,14 @@ export function Calendar({ selectedSlots, onSlotsChange }: CalendarProps) {
         const today = new Date();
         today.setHours(0, 0, 0, 0);
         
-        // Only show dates from today onwards
-        if (date >= today) {
+        // Check if date is in the currently selected month and year
+        const selectedMonth = currentDate.getMonth();
+        const selectedYear = currentDate.getFullYear();
+        const dateMonth = date.getMonth();
+        const dateYear = date.getFullYear();
+        
+        // Only show dates from today onwards AND in the selected month/year
+        if (date >= today && dateMonth === selectedMonth && dateYear === selectedYear) {
           const dayNames = [
             t("days.sunday"), t("days.monday"), t("days.tuesday"), 
             t("days.wednesday"), t("days.thursday"), t("days.friday"), t("days.saturday")
