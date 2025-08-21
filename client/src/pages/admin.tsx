@@ -324,6 +324,20 @@ export default function Admin() {
                             <p className="text-sm text-gray-600 dark:text-gray-400">
                               Subject: {booking.subject}
                             </p>
+                            <div className="text-sm text-gray-600 dark:text-gray-400">
+                              <p className="font-medium mb-1">Scheduled Time Slots:</p>
+                              {Array.isArray(booking.timeSlots) ? (
+                                <div className="ml-2 space-y-1">
+                                  {booking.timeSlots.map((slot: any, index: number) => (
+                                    <div key={index} className="text-xs bg-navy-50 dark:bg-navy-900/20 px-2 py-1 rounded">
+                                      <span className="font-medium">{slot.dayName}:</span> {slot.time}
+                                    </div>
+                                  ))}
+                                </div>
+                              ) : (
+                                <p className="text-xs ml-2">Time slots not available</p>
+                              )}
+                            </div>
                             <p className="text-sm text-gray-600 dark:text-gray-400">
                               Duration: {booking.totalDuration} minutes
                             </p>
