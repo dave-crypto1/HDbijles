@@ -18,8 +18,8 @@ export default defineConfig({
       '@': path.resolve(__dirname, 'src'),         // optional: allows imports like "@/components/..."
     },
   },
-  server: {
-    port: 5173,            // default Vite dev server port
-    open: true,            // opens browser automatically
-  },
+server: {
+  port: 5173,  // or any free port
+  open: true,
+},
 });
